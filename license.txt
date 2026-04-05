@@ -1,0 +1,18 @@
+Copyright (c) [2026] S.S. Papadopulos & Associates, Inc. All rights reserved.
+
+END USER LICENSE AGREEMENT (FREEMIUM / FREEWARE)
+
+1. GRANT OF LICENSE
+S.S. Papadopulos & Associates, Inc. grants you a non-exclusive, non-transferable, royalty-free license to download, install, and use the compiled binary version of this software for personal, academic, or commercial purposes.
+
+2. RESTRICTIONS
+You may not:
+a) Reverse engineer, decompile, disassemble, or attempt to derive the source code of the software.
+b) Modify, translate, or create derivative works based on the software.
+c) Sell, rent, lease, or sublicense the software to third parties.
+
+3. OWNERSHIP
+This software is licensed, not sold. S.S. Papadopulos & Associates, Inc. retains all intellectual property rights, title, and interest in and to the software.
+
+4. DISCLAIMER OF WARRANTY (USE AT YOUR OWN RISK)
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL S.S. Papadopulos & Associates, Inc. BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
