@@ -2,6 +2,8 @@
 
 **3D particle tracking engine for groundwater flow models — Rust core, Python API, agentic-first.**
 
+> **Early release.** The mp3du-rs Python API is available now for testing and evaluation, but has not yet undergone the same level of rigorous validation as the original C++ version. Results should be checked against known solutions before use in production work.
+
 mod-PATH3DU computes particle trajectories through groundwater flow grids and is compatible with all major versions of MODFLOW. It supports both structured grids (MODFLOW classic, MODFLOW 2005) and horizontally-unstructured, vertically-layered grids (MODFLOW-USG, MODFLOW 6 DIS/DISV).
 
 > **Built with AI.** The API was designed and implemented in collaboration with AI. A custom MCP server exposed the original C++ source code directly to the implementing agent, grounding every algorithmic decision in the original mod-PATH3DU C++ codebase, which has years of real-world use behind it. The result is an API built from the ground up for agentic workflows — with machine-readable documentation, a JSON-schema-validated configuration contract, and structured outputs at every layer.
