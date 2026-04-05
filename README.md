@@ -4,7 +4,7 @@
 
 mod-PATH3DU computes particle trajectories through groundwater flow grids and is compatible with all major versions of MODFLOW. It supports both structured grids (MODFLOW classic, MODFLOW 2005) and horizontally-unstructured, vertically-layered grids (MODFLOW-USG, MODFLOW 6 DIS/DISV).
 
-> **Built with AI.** The API was designed and implemented in collaboration with AI. A custom MCP server exposed the original C++ source code directly to the implementing agent, grounding every algorithmic decision in the verified reference implementation rather than inference. The result is an API built from the ground up for agentic workflows — with machine-readable documentation, a JSON-schema-validated configuration contract, and structured outputs at every layer.
+> **Built with AI.** The API was designed and implemented in collaboration with AI. A custom MCP server exposed the original C++ source code directly to the implementing agent, grounding every algorithmic decision in the original mod-PATH3DU C++ codebase, which has years of real-world use behind it. The result is an API built from the ground up for agentic workflows — with machine-readable documentation, a JSON-schema-validated configuration contract, and structured outputs at every layer.
 
 > **Grid limitation:** mod-PATH3DU requires *layer-conforming* discretization — cells must be organized into discrete horizontal layers with defined top and bottom elevations per cell. Fully 3D-unstructured connectivity (MODFLOW 6 DISU, where cells may connect arbitrarily in all three dimensions) is not supported.
 
