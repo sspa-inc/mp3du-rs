@@ -49,7 +49,7 @@ mod-PATH3DU is proprietary freeware and is not published to PyPI. Install the co
 **Requirements:** Python ≥ 3.8 · NumPy · Windows 64-bit
 
 ```bash
-pip install https://github.com/sspa-inc/mp3du-rs/releases/download/v0.1.0/mp3du_py-0.1.0-cp38-abi3-win_amd64.whl
+pip install https://github.com/sspa-inc/mp3du-rs/releases/download/v0.1.1/mp3du_py-0.1.1-cp38-abi3-win_amd64.whl
 ```
 
 > **Note:** Replace the URL above with the link to the latest `.whl` asset on the [Releases](https://github.com/sspa-inc/mp3du-rs/releases) page.
@@ -86,7 +86,7 @@ config = mp3du.SimulationConfig.from_json(json.dumps({
     "solver": "DormandPrince",
     "adaptive": {"tolerance": 1e-6, "safety": 0.9, "alpha": 0.2,
                  "min_scale": 0.2, "max_scale": 5.0, "max_rejects": 10,
-                 "min_dt": 1e-10, "euler_dt": 1.0},
+                 "min_dt": 1e-10, "euler_dt": 1e-10},
     "dispersion": {"method": "None"},
     "retardation_enabled": False,
     "capture": {"max_time": 365250.0, "max_steps": 1000000,
