@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.2 (2026-11-18)
+
+Changes since 0.1.1.
+
+### Fixed
+- **The Waterloo method uses aquifer storage.** `fit_waterloo()` subtracts `cell_flows.q_storage` from the vertical term `q_vert`, in both the fit of each cell and the velocity evaluation, as mod-PATH3DU 2.1.9 does (`qvert = (qtop - qbot) + (qtopface - qbotface) - qsto`). Storage acts as a source or sink spread evenly over the cell. In 0.1.0 and 0.1.1, `hydrate_cell_flows()` accepted `q_storage` and kept it, but nothing used it: passing storage gave the same result as passing zeros. In transient models the horizontal velocity was therefore wrong wherever storage is a sizable part of a cell's flow. In a transient MODFLOW 6 test model with 15-day steps, using storage moved particle end positions by 0.68 m on average and by up to 39 m. In a closed-form case with uniform storage, the path error after 300 days fell from 15.8 m to 0.44 m.
+
+### Changed
+- **Pass storage in `q_storage`, as MODFLOW gives it.** `q_storage` is the storage flow in MODFLOW's sign and in volume per time: positive is water released from storage into the cell. For MODFLOW 6 pass `STO-SS + STO-SY` per cell (through the API, `GWF/STO/STRGSS + GWF/STO/STRGSY`); for MODFLOW-2005 and MODFLOW-USG pass `STORAGE`; for steady state pass zeros. Do not negate it.
+- **Check scripts written for 0.1.1.** A non-zero `q_storage` passed to 0.1.1 now takes effect. If you added storage into `q_vert` yourself (for example `q_vert = -storage`, or `q_vert` set to the cell residual `sum(face_flow) + q_well + q_other`, which already contains storage), either keep that and pass `q_storage` as zeros, or take storage out of `q_vert` and pass it in `q_storage`. Doing both counts storage twice.
+- Steady-state models, and scripts that pass `q_storage` as zeros, give results identical to 0.1.1, bit for bit.
+- **Documentation: boundary flows through the top and bottom faces belong in `q_vert`.** The documentation said that flows routed to the top or bottom face (IFACE 5, 6 and 7, such as recharge) must be left out of `q_vert`. mod-PATH3DU includes them, and the Waterloo fit needs them: leaving recharge out of `q_vert` leaves it out of the horizontal velocity, as leaving storage out did. For a cell whose budget closes, `q_vert = sum(face_flow) + q_well + q_other + q_storage` (`face_flow` positive into the cell, the rest in raw MODFLOW sign). The code did not change on this point; scripts that followed the old advice should be checked.
+
+### Added
+- Rust: `mp3du_grid::flow::qvert_with_storage(q_vert, q_storage)` gives the vertical term that `CellFitInput::q_vert` and `CellEvalContext::q_vert` expect, for Rust users who build these directly.
+- The docstrings of `hydrate_cell_flows()`, `hydrate_waterloo_inputs()` and `fit_waterloo()`, and the type stub, describe `q_vert` and `q_storage`. The stub lists the keys of `TrajectoryResult.to_records()`: `step`, `time`, `x`, `y`, `z`, `vx`, `vy`, `vz`, `cell_id` and `dt`.
+- Tests: storage passed in `q_storage` gives the same trajectories as the same storage folded into `q_vert`; and a closed-form case with uniform storage.
+
 ## 0.1.1 (2026-11-17)
 
 Changes since 0.1.0.

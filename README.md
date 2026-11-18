@@ -49,7 +49,7 @@ mod-PATH3DU is proprietary freeware and is not published to PyPI. Install the co
 **Requirements:** Python ≥ 3.8 · NumPy · Windows 64-bit
 
 ```bash
-pip install https://github.com/sspa-inc/mp3du-rs/releases/download/v0.1.1/mp3du_py-0.1.1-cp38-abi3-win_amd64.whl
+pip install https://github.com/sspa-inc/mp3du-rs/releases/download/v0.1.2/mp3du_py-0.1.2-cp38-abi3-win_amd64.whl
 ```
 
 > **Note:** Replace the URL above with the link to the latest `.whl` asset on the [Releases](https://github.com/sspa-inc/mp3du-rs/releases) page.
