@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.3 (2026-11-18)
+
+Changes since 0.1.2. Results are unchanged for valid input.
+
+### Fixed
+- **A cell that cannot be fitted is reported, not a crash.** `fit_waterloo()` (in Rust, `WaterlooField::new`) now raises a `ValueError` naming the cell when a cell's fit input has fewer than 3 faces, face arrays of different lengths, or a no-flow face index out of range. Before, such a cell panicked when a particle first entered it, and because the release build aborts on a panic, the Python process ended without an error message. Valid input gives the same results as before.
+
+### Documentation
+- **`q_top` and `q_bot` are positive upward,** as in mod-PATH3DU: `q_bot` positive is flow into the cell from below, `q_top` positive is flow out through the top, so recharge entering the top is negative. The documentation said `q_top` positive was flow entering through the top; following that made particles in recharge cells rise instead of sink. The code did not change.
+- **`q_well` is MODFLOW's well rate, unchanged** (negative = pumping). The documentation's IFACE tables and its helper `route_iface_bc_flows()` negated IFACE 0 flows; with the negated rate a pumping well's cell repels particles near the well. The helper is corrected in the documentation repository. Direct `q_well` arrays were always to be passed unchanged.
+- **The Quickstart and the minimal script run.** Both passed cells without faces (the Quickstart crashed Python, the minimal script raised a `ValueError`), listed vertices counter-clockwise, and gave `z` as an elevation instead of a height within the cell. Both now set up uniform flow on a real grid and print positions that can be checked by hand.
+
 ## 0.1.2 (2026-11-18)
 
 Changes since 0.1.1.
