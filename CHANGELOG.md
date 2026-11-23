@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.5 (2026-11-23)
+
+Changes since 0.1.4. Results with dispersion change; results without dispersion are unchanged.
+
+### Fixed
+- **The GSDE dispersion method produces the drift term.** A random walk reproduces the advection-dispersion equation only with the drift θ⁻¹∇·(θD) added to the random step, and the GSDE of LaBolle et al. (2000) obtains it by evaluating the dispersion at trial points with the same random numbers. MP3DU-RS drew the second step from independent random numbers, which removes the drift, so particles collected where dispersion is low; its two-step form (eq. 11a) is also not exact for anisotropic dispersion. The method now follows LaBolle et al. (2000, eqs. 17a–17c), as mod-PATH3DU 2.1.9 has since November 2026: one random vector per step, trial points located by position, including in the layer above or below, and the ratio of porosities between trial point and particle. In a strip with uniform flow and transverse dispersivity 1.0 on one side and 0.1 on the other, an evenly spread set of particles now stays even to within 2%; before, the low-dispersion half held 1.73 times its share. In Example 5a (the MEUK model, 144,000 particles), run with the integrator settings of the mod-PATH3DU input (step-doubling Runge-Kutta, no step limit), the fraction of particles still in the aquifer at 23,363 and 50,000 days is 0.950 and 0.0259, against 0.950 and 0.0247 to 0.0254 in four runs of mod-PATH3DU 2.1.9, which is within the Monte Carlo noise, and 0.944 and 0.029 for MT3D.
+- **Backward tracking keeps the sign of the dispersive drift.** The tracker multiplied the dispersive displacement by the signed time step, which reversed the drift in backward tracking; the backward process has the drift of the forward one. This affected both dispersion methods.
+- **Vertical dispersion is in the right units, in the right layer.** The dispersion methods were given the cell's local z (0 to 1) as if it were an elevation, and their vertical result, a length per time, was used as local z per time, so vertical dispersion was scaled by the cell thickness. Trial points were also located by footprint alone, so in a layered model they could fall in another layer. Positions and vertical velocities are now global within the dispersion methods, and trial points are found in the particle's layer and then above or below, passing through dry cells as mod-PATH3DU does.
+
+### Changed
+- **Itô results change slightly.** The Itô method now builds the dispersion tensor from the velocity at the start of the step, as the Itô scheme requires, instead of the step's average velocity. In Example 5a the fraction of particles still in the aquifer at 50,000 days changed from 0.028 to 0.0265.
+- Rust: `GsdeDispersion::new` and `ItoDispersion::new` take only the particle id; `DispersionCalculator::calc` takes the particle position in global coordinates, the medium there (`MediumAt`), the cell thickness, the signed time step, and a function giving the medium at a point. `VelocityField::cell_medium` and `CellMedium` give a cell's vertical frame and porosity, and `DispersionMethodConfig::dispersivities` the dispersivities.
+
+### Known differences from mod-PATH3DU 2.1.9
+- mod-PATH3DU skips dispersion in cells that contain a well and tightens the step error a hundredfold there; MP3DU-RS does neither.
+- `retardation_enabled` has no effect: velocities are not divided by the retardation factor. The dispersivities given to `hydrate_cell_properties()` are not used; those of the configuration are.
+- With Dormand-Prince and a 1,000-day step limit, Example 5a gives 0.948 and 0.0265 in MP3DU-RS against 0.952 and 0.0252 in mod-PATH3DU with the same settings, a difference of 2 to 4 standard errors. The two Dormand-Prince step controllers differ in detail (MP3DU-RS lets the step grow fivefold, mod-PATH3DU fourfold); with step-doubling Runge-Kutta the results agree.
+
 ## 0.1.4 (2026-11-23)
 
 Changes since 0.1.3. Results are unchanged for valid input, except where noted below.
