@@ -43,15 +43,23 @@ Full documentation, including a quickstart guide, Python API reference, schema r
 
 ## Installation
 
-mod-PATH3DU is proprietary freeware and is not published to PyPI. Install the compiled wheel directly from the [Releases](https://github.com/sspa-inc/mp3du-rs/releases) page.
+mod-PATH3DU is proprietary freeware and is not published to PyPI. The compiled wheels are attached to each release on the [Releases](https://github.com/sspa-inc/mp3du-rs/releases) page, and a package index lets pip pick the right one for your computer.
 
-**Requirements:** Python ≥ 3.8 · NumPy · Windows 64-bit
+**Requirements:** Python ≥ 3.8 and NumPy, on one of:
+- Windows, 64-bit
+- macOS 11 or later on Apple Silicon, or macOS 10.12 or later on Intel
+- Linux x86-64 with glibc 2.17 or later
 
 ```bash
-pip install https://github.com/sspa-inc/mp3du-rs/releases/download/v0.1.6/mp3du_py-0.1.6-cp38-abi3-win_amd64.whl
+pip install numpy
+pip install mp3du-py --index-url https://sspa-inc.github.io/mp3du-rs/simple/
 ```
 
-> **Note:** Replace the URL above with the link to the latest `.whl` asset on the [Releases](https://github.com/sspa-inc/mp3du-rs/releases) page.
+The first command installs NumPy from PyPI. The second looks only at SSP&A's package index, which holds the wheels for every platform. It installs the latest version; write `mp3du-py==0.1.6`, for example, to install a particular one, and add `--upgrade` to update an existing installation.
+
+If the second command reports "No matching distribution found for numpy", run the first command and try again.
+
+Keep the two commands separate. mp3du-py is not on PyPI, so if pip were told to search PyPI and the package index together, a package of the same name published on PyPI could take its place.
 
 Verify the installation:
 
