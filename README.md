@@ -19,8 +19,7 @@ Given a groundwater flow model, mod-PATH3DU will:
 - **Track particles** forward or backward through 3D unstructured grids
 - **Interpolate velocity** using the Waterloo method — a smooth, analytically differentiable stream-function fit
 - **Integrate trajectories** with high-order adaptive Runge-Kutta solvers (Dormand-Prince, Cash-Karp, Verner variants)
-- **Model stochastic dispersion** using GSDE or Itô formulations, or run purely advective simulations
-- **Apply retardation** for chemical transport scenarios
+- **Model stochastic dispersion** using GSDE or Itô formulations, with dispersivities per cell or the same everywhere, or run purely advective simulations
 - **Capture particles** at pumping wells through an analytically correct velocity field — no weak/strong sink designation required (which is a pragmatic approximation, not a physical one)
 - **Run in parallel** — all particles are tracked concurrently
 
@@ -49,7 +48,7 @@ mod-PATH3DU is proprietary freeware and is not published to PyPI. Install the co
 **Requirements:** Python ≥ 3.8 · NumPy · Windows 64-bit
 
 ```bash
-pip install https://github.com/sspa-inc/mp3du-rs/releases/download/v0.1.5/mp3du_py-0.1.5-cp38-abi3-win_amd64.whl
+pip install https://github.com/sspa-inc/mp3du-rs/releases/download/v0.1.6/mp3du_py-0.1.6-cp38-abi3-win_amd64.whl
 ```
 
 > **Note:** Replace the URL above with the link to the latest `.whl` asset on the [Releases](https://github.com/sspa-inc/mp3du-rs/releases) page.
@@ -116,8 +115,8 @@ See the [Quickstart](https://sspa-inc.github.io/mp3du-rs-docs/getting-started/qu
 | Grid type | Structured (DIS) and horizontally-unstructured layered (DISV/USG); layer-conforming required — fully 3D-unstructured (DISU) not supported |
 | Velocity interpolation | Waterloo stream-function method |
 | ODE solvers | Euler, RK4 step-doubling, Dormand-Prince, Cash-Karp, Verner Robust, Verner Efficient |
-| Dispersion | None (advection only), GSDE, Itô stochastic |
-| Retardation | Per-cell retardation factor |
+| Dispersion | None (advection only), GSDE, Itô stochastic; dispersivities per cell or the same everywhere |
+| Retardation | Not applied yet: `retardation_enabled` has no effect |
 | Well capture | Physically correct by default — no weak/strong sink designation required; an optional capture radius is available for edge cases |
 | Boundary capture | IFACE-based face routing |
 | Parallelism | All particles tracked concurrently |

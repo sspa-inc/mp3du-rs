@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.1.6 (2026-11-23)
+
+Changes since 0.1.5. Scripts that run with dispersion and pass dispersivity arrays to `hydrate_cell_properties()` stop with an error and must be changed (see below); with the arrays removed they give the same results as 0.1.5. MEUK (SSP&A) scripts with a vertical transverse dispersivity other than 0 also stop with an error. Results without dispersion are unchanged.
+
+### Changed
+- **Dispersivities are given per cell or in the configuration, and per-cell values are used.** `hydrate_cell_properties()` required the arrays `disp_long`, `disp_trans_h` and `disp_trans_v`, but the tracker never read them: every cell had the configuration's `alpha_l`, `alpha_th` and `alpha_tv`. A model whose dispersivities differ between layers or zones was therefore tracked with one set everywhere, without notice. mod-PATH3DU takes them per cell for MODFLOW models, from the three dispersivity arrays of its `.p3d` file (labelled `DISPH`, `DISPT` and `DISPV` in the Example 5a input). The dispersivities are now given in one of two ways:
+  - per cell, as the three arrays, which are now optional, to `hydrate_cell_properties()` or, new in this version, to `hydrate_sspa_inputs()` (mod-PATH3DU has no per-cell dispersivities for MEUK models), with only `"method"` in the configuration's `dispersion` block;
+  - as the three numbers in the `dispersion` block, the same in every cell, with the arrays left out.
+
+  With per-cell values the particle uses its own cell's dispersivities, and each trial point of the GSDE uses those of the cell it lies in, as in mod-PATH3DU's algorithm; results with dispersivity zones have not yet been compared with mod-PATH3DU's. A constant given either way gives the same trajectories, to the last bit. With dispersion off, per-cell arrays are not used, and `run_simulation()` issues a `UserWarning` saying so unless every value is 0; scripts for 0.1.5 that pass arrays of zeros without dispersion therefore run as before, without a warning.
+- **A run with dispersion refuses dispersivities given both ways, or neither.** `run_simulation()` raises `ValueError` before it tracks any particle, with "dispersivity is given twice … Use one of them …" or "dispersion is on but no dispersivity is given …". Scripts written for earlier versions that run with dispersion give both, because the arrays were required (often as zeros), and now stop with the first message. Removing the arrays keeps the results of 0.1.5, which used the configuration's values: GSDE, Itô and SSP&A test runs give trajectories identical to those of 0.1.5. Giving only one or two of the three arrays, or of the three numbers, is also an error, as is a negative dispersivity, or a NaN or infinite value in the arrays. Every cell is checked, inactive ones included.
+- **Two more checks on dispersivities.**
+  - The Itô method refuses per-cell dispersivities that differ between cells. It takes its drift from differences of the dispersion tensor, which cannot represent a change from one cell to the next; use the GSDE for such dispersivities, or give one set in the configuration and leave out the arrays. The values must be identical, inactive cells included.
+  - An SSP&A field, which is two-dimensional, refuses a vertical transverse dispersivity other than 0. Before, such a value moved particles out through the top or bottom of the model, where they ended as `ExitedDomain`. mod-PATH3DU sets it to 0 for MEUK models.
+- `CellProperties.disp_long`, `disp_trans_h` and `disp_trans_v` are `None` when the arrays are not given, and `SspaInputs` has the same three properties. In `mp3du_schema.json`, `alpha_l`, `alpha_th` and `alpha_tv` are optional, all three or none.
+- Rust:
+  - `GsdeConfig` and `ItoConfig` hold `Option<f64>` dispersivities, and `uniform()` builds one with all three set.
+  - `DispersionMethodConfig::configured_dispersivities()` replaces `dispersivities()`.
+  - `run_simulation()` and `run_simulation_parallel()` take the per-cell dispersivities as a new last argument, and `track_single_particle()` takes the run's `Dispersivity`, as `Dispersivity::resolve()` decides it.
+  - `CellProperties` holds `dispersivity: Option<Vec<[f64; 3]>>` in place of the three vectors.
+  - `VelocityField::is_two_dimensional()` is true for the SSP&A field.
+
+### Documentation
+- The README, the schema and the reference pages described retardation as applied (`retardation_enabled` dividing velocities by the retardation factor). MP3DU-RS has never applied retardation; they now say that it has no effect.
+
+### Known differences from mod-PATH3DU 2.1.9
+- mod-PATH3DU skips dispersion in cells that contain a well and tightens the step error a hundredfold there; MP3DU-RS does neither.
+- `retardation_enabled` has no effect, because MP3DU-RS does not apply retardation. mod-PATH3DU's `RETARDATION` option multiplies each cell's porosity by its retardation factor, which slows both advection and dispersion.
+- With Dormand-Prince and a 1,000-day step limit, Example 5a gives 0.948 and 0.0265 in MP3DU-RS 0.1.5 against 0.952 and 0.0252 in mod-PATH3DU with the same settings, a difference of 2 to 4 standard errors. The two Dormand-Prince step controllers differ in detail (MP3DU-RS lets the step grow fivefold, mod-PATH3DU fourfold); with step-doubling Runge-Kutta the results agree.
+
 ## 0.1.5 (2026-11-23)
 
 Changes since 0.1.4. Results with dispersion change; results without dispersion are unchanged.
