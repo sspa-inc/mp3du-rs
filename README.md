@@ -55,7 +55,7 @@ pip install numpy
 pip install mp3du-py --index-url https://sspa-inc.github.io/mp3du-rs/simple/
 ```
 
-The first command installs NumPy from PyPI. The second looks only at SSP&A's package index, which holds the wheels for every platform. It installs the latest version; write `mp3du-py==0.1.8`, for example, to install a particular one, and add `--upgrade` to update an existing installation.
+The first command installs NumPy from PyPI. The second looks only at SSP&A's package index, which holds the wheels for every platform. It installs the latest version; write `mp3du-py==0.1.9`, for example, to install a particular one, and add `--upgrade` to update an existing installation.
 
 If the second command reports "No matching distribution found for numpy", run the first command and try again.
 

@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.1.9 (2026-11-26)
+
+Changes since 0.1.8. This is a speed release for transient models on Waterloo velocity fields: the fit of each cell is built once, by a faster solve that is also more accurate in some cells, and is reused in later time steps. A steady run, or the first time step of a transient one, gains only from the faster first fit of each cell.
+- **Water-level-map (SSP&A) runs** do not use the changed code, so they are unchanged. They were not re-run: the change is confined to the Waterloo fit.
+- **Waterloo runs change slightly:**
+  - **In most cells, only by round-off.** Where the fit's condition number is below about 1e4, the fitted velocities agree with 0.1.8's to round-off.
+  - **In some moderately ill-conditioned cells, by up to about 4e-5 (relative) in velocity.** The fit is now solved by QR with column pivoting, which is more accurate there than 0.1.8's SVD solve. Checked against exact arithmetic on 24 cells of a Voronoi grid, QR's error was at most 6e-8, while the old solve's reached 3e-5. In the transient example below, 20 of 446 cells changed by more than 1e-9.
+  - **Nearly singular cells,** such as long, thin cells or cells fitted far from their centroid, still use the SVD, as before.
+  - **Particles near a capture face** can move visibly.
+- **In a transient two-well example** (446 Voronoi cells, 600 particles, a fit every 15 days):
+  - no particle changed fate;
+  - positions moved by up to 6.6 m (99th percentile 0.43 m), and capture times by up to 4.3 days. A last-digit change of the flows moves 0.1.8's results by up to 3.1 m and 4.3 days.
+- **In the User Guide's Examples 1a, 2, 3, 6 and 7:** no particle changed fate. End points moved by about as much as last-digit changes of the flows move them; the most was 0.58 ft, for particle 1 of Example 1a.
+- **Dispersion runs on Waterloo fields** can follow different random paths once a round-off difference shifts a step. This has not been tested in MP3DU-RS. When the same change was made in mod-PATH3DU 2.1.9, its Example 4A gave the same plume statistics (mean x 300.45 against 300.50, standard error 0.5).
+
+### Changed
+- **The Waterloo velocity fit is now built once per cell and reused.**
+  - **How:** the least-squares fit of a cell's velocity series is linear in the cell's flows, and its matrix depends only on the cell's shape. MP3DU-RS now keeps one small matrix per cell, so fitting a cell to new flows in a later time step is one matrix–vector product.
+  - **Speed:**
+    - building a cell's fit takes about 0.6 ms instead of about 1.3 ms (QR; the SVD remains for nearly singular cells);
+    - a later refit of a cell takes about 0.5–0.8 µs instead of about 1.2 ms;
+    - on a grid of 102,400 cells, fitting and evaluating every cell again in a second time step took 0.21 s instead of 136 s;
+    - the whole transient two-well script ran in 3.2 s instead of 5.3 s (best of 8 runs each, MODFLOW 6 included: a saving of about 2 s).
+  - **Who gains:** the first fit of a cell takes about half as long as before; scripts that refit the same grid in many time steps gain most.
+  - **To benefit in a transient script,** create one `WaterlooConfig` and pass the same object to `fit_waterloo` at every time step. A matrix is reused only for a cell whose geometry is the same, bit for bit. A new `WaterlooConfig` per call still works, but reuses nothing; so does alternating one config between two grids.
+  - **Memory:**
+    - a kept `WaterlooConfig` holds about 4 KB for each cell that particles have visited (4.5 KB for a cell with 6 faces);
+    - on 102,400 visited cells the process peak rose from 274 MB to 687 MB;
+    - a config that is not kept holds nothing.
+  - **New methods:** `WaterlooConfig.cache_info()` reports what is held, and `clear_cache()` releases it. Call `clear_cache()` after a run that visits very many cells. Cells are fitted when a particle first reaches them, so `cache_info()` shows counts only after `run_simulation`.
+- **Agreement with mod-PATH3DU 2.1.9.** The mod-PATH3DU 2.1.9 update of 11/26/2026 uses the same method: a least-squares fit, built once per cell and solved by QR with column pivoting.
+  - **In nearly singular cells the codes differ.** MP3DU-RS falls back to the SVD there; 2.1.9 keeps pivots down to round-off.
+  - **In the cells of the User Guide's Examples 3 and 6,** the fitted velocities of the two codes agree to about 1e-13.
+  - **Travel times can still differ by more than the fits do.** The adaptive step control reacts to round-off at a few points, so a single particle's time can change by up to about 0.2% (Example 3). Changing the flows only in their last digits moves MP3DU-RS's own results as much. Averaged over Example 3's particles, the two codes differ by about 0.01–0.03%.
+- **Rust API:** `WaterlooField::with_cache`, `FitOperatorCache` and `CacheInfo`.
+
+### Known issues
+As described for 0.1.8, and:
+- **In flow that turns sharply,** for example under recharge, long steps bias GSDE dispersion. In the User Guide's Example 7 with dispersion (αL 10, αTH 1, αTV 0.1), steps with no limit made the mean capture time about 5% later than steps of 10 days, in both MP3DU-RS and mod-PATH3DU 2.1.9. Limit `max_dt` until the result stops changing. A revised dispersion scheme is in development.
+- **Capture in a cell entered through a side face** (an internal sink such as a constant-head cell) is recorded at the end of the advective step that entered the cell, not at the face. The capture time can therefore be late by up to one step: by about 4 days of 1,339 for one particle of the User Guide's Example 1a (6 days of 1,341 in 0.1.8).
+
 ## 0.1.8 (2026-11-25)
 
 Changes since 0.1.7. Results change with dispersion where a dispersive displacement reaches the edge of the grid or an inactive or dry cell (with either method, even where the dispersion is uniform), and, with `"method": "Gsde"`, where the dispersion changes near a face with no wet cell beyond or across a layer face, and can change in layers whose elevation changes from cell to cell. Runs without dispersion are unchanged, to the last bit. Example 5a with dispersion is unchanged within its statistics (`DormandPrince`: GSDE at a 1,000-day `max_dt` to the particle, GSDE and Itô at 250 days within 8 particles of 144,000).
